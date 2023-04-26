@@ -1221,7 +1221,9 @@ dhd_napi_schedule(void *info)
 		dhd->napi_schedule_time = OSL_SYSUPTIME_US();
 		dhd->pub.lb_rxp_napi_sched_cnt++;
 #endif /* DHD_LB_STATS */
+		local_bh_disable();
 		__napi_schedule(&dhd->rx_napi_struct);
+		local_bh_enable();
 #ifdef WAKEUP_KSOFTIRQD_POST_NAPI_SCHEDULE
 		raise_softirq(NET_RX_SOFTIRQ);
 #endif /* WAKEUP_KSOFTIRQD_POST_NAPI_SCHEDULE */
