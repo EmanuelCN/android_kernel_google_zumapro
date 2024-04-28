@@ -787,7 +787,7 @@ load_page:
 copy:
 	src = kmap_atomic(page);
 	dst = kmap_atomic(g_page);
-	memcpy(dst, src, PAGE_SIZE);
+	copy_page(dst, src);
 	kunmap_atomic(dst);
 	kunmap_atomic(src);
 
@@ -830,7 +830,7 @@ static int gcma_cc_load_page(int hash_id, struct cleancache_filekey key,
 
 	src = kmap_atomic(g_page);
 	dst = kmap_atomic(page);
-	memcpy(dst, src, PAGE_SIZE);
+	copy_page(dst, src);
 	kunmap_atomic(dst);
 	kunmap_atomic(src);
 	rotate_lru_page(g_page);
