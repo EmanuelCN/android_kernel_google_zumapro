@@ -2106,6 +2106,8 @@ static void default_options(struct f2fs_sb_info *sbi)
 
 	sbi->sb->s_flags &= ~SB_INLINECRYPT;
 
+
+	set_opt(sbi, AGE_EXTENT_CACHE);
 	set_opt(sbi, ATGC);
 	set_opt(sbi, GC_MERGE);
 	set_opt(sbi, INLINE_XATTR);
