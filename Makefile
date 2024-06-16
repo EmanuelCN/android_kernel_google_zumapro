@@ -790,11 +790,12 @@ LTO_LDFLAGS	:= $(CC_FLAGS_LTO) -Wno-lto-type-mismatch -Wno-psabi \
 LDFINAL		:= $(CONFIG_SHELL) $(srctree)/scripts/gcc-ld $(LTO_LDFLAGS)
 AR		:= $(CROSS_COMPILE)gcc-ar
 NM		:= $(CROSS_COMPILE)gcc-nm
-export CC_FLAGS_LTO LDFINAL
+export CC_FLAGS_LTO
 else
 LDFINAL		:= $(LD)
-export LDFINAL
 endif
+
+export LDFINAL
 
 ifeq ($(KBUILD_EXTMOD),)
 # Objects we will link into vmlinux / subdirs we need to visit
