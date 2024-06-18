@@ -1017,7 +1017,7 @@ dhd_get_fw_nvram_names(dhd_pub_t *dhdp, uint chipid, uint chiprev,
 naming_info_t *
 dhd_find_naming_info_by_chip_rev(dhd_pub_t *dhdp, bool *is_murata_fem)
 {
-	int board_type = 0, chip_rev = 0, vid_length = 0;
+	int board_type = 0, __maybe_unused chip_rev = 0, vid_length = 0;
 	unsigned char vid[MAX_VID_LEN];
 	naming_info_t *info = NULL;
 	char *cid_info = NULL;
