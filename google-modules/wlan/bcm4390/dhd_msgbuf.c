@@ -14422,7 +14422,7 @@ dhd_prot_get_read_addr(dhd_pub_t *dhd, msgbuf_ring_t *ring, uint32 *available_le
 	uint16 d2h_wr = 0;
 	void  *md_read_addr = NULL; /* address of next msg to be read in ring */
 	uint8 *ptr = NULL;
-	uint32 total_md_len = 0;
+	__maybe_unused uint32 total_md_len = 0;
 	uint16 mdbuf_space = 0;
 	int mdbuf_top_space = 0;
 	int ret = BCME_OK;
