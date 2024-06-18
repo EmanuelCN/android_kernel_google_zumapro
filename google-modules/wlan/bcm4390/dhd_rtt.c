@@ -2491,7 +2491,7 @@ exit:
 void
 dhd_rtt_set_geofence_cur_target_idx(dhd_pub_t *dhd, int8 idx)
 {
-	int8 target_cnt = 0;
+	__maybe_unused int8 target_cnt = 0;
 	rtt_status_info_t *rtt_status = GET_RTTSTATE(dhd);
 
 	target_cnt = rtt_status->geofence_cfg.geofence_target_cnt;
@@ -5099,7 +5099,7 @@ dhd_rtt_convert_results_to_host_v3(rtt_mc_az_result_t *rtt_result, const uint8 *
 	wl_proxd_bitflips_t tof_target_bitflips = 0;
 	int16 rssi = 0;
 	int32 dist = 0;
-	uint32 chanspec = 0, gd_variance = 0;
+	uint32 chanspec = 0, __maybe_unused gd_variance = 0;
 	uint8 num_ftm = 0;
 	char *ftm_frame_types[] =  FTM_FRAME_TYPES;
 	rtt_report_t *rtt_report = &(rtt_result->u.mc_result.report);

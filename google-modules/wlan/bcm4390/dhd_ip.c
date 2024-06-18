@@ -939,7 +939,7 @@ dhd_tcpdata_info_get(dhd_pub_t *dhdp, void *pkt)
 	uint8 *ip_hdr;		/* IP header of the new packet */
 	uint8 *tcp_hdr;		/* TCP header of the new packet */
 	uint32 ip_hdr_len;	/* IP header length of the new packet */
-	uint32 cur_framelen;
+	__maybe_unused uint32 cur_framelen;
 	uint16 ip_total_len;	/* Total length of IP packet for the new packet */
 	uint32 tcp_hdr_len;		/* TCP header length of the new packet */
 	uint32 tcp_seq_num;		/* TCP sequence number of the new packet */
