@@ -1450,7 +1450,7 @@ int wl_android_get_chanspec(struct net_device *dev, char *command, int total_len
 	int error = 0;
 	int bytes_written = 0;
 	int chsp = {0};
-	uint16 band = 0;
+	__maybe_unused uint16 band = 0;
 	uint16 bw = 0;
 	uint16 channel = 0;
 	u32 sb = 0;
