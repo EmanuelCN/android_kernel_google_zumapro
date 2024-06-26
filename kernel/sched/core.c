@@ -1281,27 +1281,24 @@ int tg_nop(struct task_group *tg, void *data)
 static void set_load_weight(struct task_struct *p, bool update_load)
 {
 	int prio = p->static_prio - MAX_RT_PRIO;
-	struct load_weight *load = &p->se.load;
+	struct load_weight lw;
 
-	/*
-	 * SCHED_IDLE tasks get minimal weight:
-	 */
 	if (task_has_idle_policy(p)) {
-		load->weight = scale_load(WEIGHT_IDLEPRIO);
-		load->inv_weight = WMULT_IDLEPRIO;
-		return;
+		lw.weight = scale_load(WEIGHT_IDLEPRIO);
+		lw.inv_weight = WMULT_IDLEPRIO;
+	} else {
+		lw.weight = scale_load(sched_prio_to_weight[prio]);
+		lw.inv_weight = sched_prio_to_wmult[prio];
 	}
 
 	/*
 	 * SCHED_OTHER tasks have to update their load when changing their
 	 * weight
 	 */
-	if (update_load && p->sched_class == &fair_sched_class) {
-		reweight_task(p, prio);
-	} else {
-		load->weight = scale_load(sched_prio_to_weight[prio]);
-		load->inv_weight = sched_prio_to_wmult[prio];
-	}
+	if (update_load && p->sched_class == &fair_sched_class)
+		reweight_task(p, &lw);
+	else
+		p->se.load = lw;
 }
 
 #ifdef CONFIG_UCLAMP_TASK
@@ -7111,6 +7108,7 @@ void rt_mutex_setprio(struct task_struct *p, struct task_struct *pi_task)
 	struct rq_flags rf;
 	struct rq *rq;
 	int update = 0;
+	struct load_weight lw;
 
 	trace_android_rvh_rtmutex_prepare_setprio(p, pi_task);
 	/* XXX used to be waiter->prio, not waiter->task->prio */
@@ -7203,8 +7201,11 @@ void rt_mutex_setprio(struct task_struct *p, struct task_struct *pi_task)
 			p->dl.pi_se = &p->dl;
 		else if (rt_prio(oldprio))
 			p->rt.timeout = 0;
-		else if (!task_has_idle_policy(p))
-			reweight_task(p, prio - MAX_RT_PRIO);
+		else if (!task_has_idle_policy(p)) {
+			lw.weight = scale_load(sched_prio_to_weight[prio - MAX_RT_PRIO]);
+			lw.inv_weight = sched_prio_to_wmult[prio - MAX_RT_PRIO];
+			reweight_task(p, &lw);
+		}
 	}
 
 	__setscheduler_prio(p, prio);
