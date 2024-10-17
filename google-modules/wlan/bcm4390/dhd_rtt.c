@@ -3954,7 +3954,7 @@ dhd_rtt_mc_az_config_sta_rtt(dhd_pub_t *dhd, struct net_device *dev,
 		ftm_configs[ftm_cfg_cnt].flags |= WL_FTM_SESSION_FLAG_ONE_WAY;
 	}
 
-	if ((rtt_target->cmn_tgt_info.tgt_type == RTT_TWO_WAY_MC)) {
+	if (rtt_target->cmn_tgt_info.tgt_type == RTT_TWO_WAY_MC) {
 #ifdef WL_RTT_LCI
 		/* LCI request */
 		if (rtt_target->u.mc_tgt_info.LCI_request) {
