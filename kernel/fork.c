@@ -614,7 +614,6 @@ void free_task(struct task_struct *tsk)
 	release_user_cpus_ptr(tsk);
 	scs_release(tsk);
 
-	trace_android_vh_free_task(tsk);
 #ifndef CONFIG_THREAD_INFO_IN_TASK
 	/*
 	 * The task is finally done with both the stack and thread_info,
