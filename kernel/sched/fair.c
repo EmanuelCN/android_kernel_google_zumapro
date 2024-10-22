@@ -635,13 +635,11 @@ static inline bool __entity_less(struct rb_node *a, const struct rb_node *b)
  */
 static void __enqueue_entity(struct cfs_rq *cfs_rq, struct sched_entity *se)
 {
-	trace_android_rvh_enqueue_entity(cfs_rq, se);
 	rb_add_cached(&se->run_node, &cfs_rq->tasks_timeline, __entity_less);
 }
 
 static void __dequeue_entity(struct cfs_rq *cfs_rq, struct sched_entity *se)
 {
-	trace_android_rvh_dequeue_entity(cfs_rq, se);
 	rb_erase_cached(&se->run_node, &cfs_rq->tasks_timeline);
 }
 
@@ -4712,7 +4710,6 @@ place_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int initial)
 		vruntime -= thresh;
 	}
 
-	trace_android_rvh_place_entity(cfs_rq, se, initial, &vruntime);
 	/*
 	 * Pull vruntime of the entity being placed to the base level of
 	 * cfs_rq, to prevent boosting it if placed backwards.
@@ -4947,7 +4944,6 @@ check_preempt_tick(struct cfs_rq *cfs_rq, struct sched_entity *curr)
 	unsigned long ideal_runtime, delta_exec;
 	struct sched_entity *se;
 	s64 delta;
-	bool skip_preempt = false;
 
 	/*
 	 * When many tasks blow up the sched_period; it is possible that
@@ -4957,10 +4953,6 @@ check_preempt_tick(struct cfs_rq *cfs_rq, struct sched_entity *curr)
 	ideal_runtime = min_t(u64, sched_slice(cfs_rq, curr), sysctl_sched_latency);
 
 	delta_exec = curr->sum_exec_runtime - curr->prev_sum_exec_runtime;
-	trace_android_rvh_check_preempt_tick(current, &ideal_runtime, &skip_preempt,
-			delta_exec, cfs_rq, curr, sysctl_sched_min_granularity);
-	if (skip_preempt)
-		return;
 	if (delta_exec > ideal_runtime) {
 		resched_curr(rq_of(cfs_rq));
 		/*
@@ -5041,11 +5033,7 @@ static struct sched_entity *
 pick_next_entity(struct cfs_rq *cfs_rq, struct sched_entity *curr)
 {
 	struct sched_entity *left = __pick_first_entity(cfs_rq);
-	struct sched_entity *se = NULL;
-
-	trace_android_rvh_pick_next_entity(cfs_rq, curr, &se);
-	if (se)
-		goto done;
+	struct sched_entity *se;
 
 	/*
 	 * If curr is set we have to see if its left of the leftmost entity
@@ -5087,7 +5075,6 @@ pick_next_entity(struct cfs_rq *cfs_rq, struct sched_entity *curr)
 		se = cfs_rq->last;
 	}
 
-done:
 	return se;
 }
 
@@ -5150,7 +5137,6 @@ entity_tick(struct cfs_rq *cfs_rq, struct sched_entity *curr, int queued)
 
 	if (cfs_rq->nr_running > 1)
 		check_preempt_tick(cfs_rq, curr);
-	trace_android_rvh_entity_tick(cfs_rq, curr);
 }
 
 
@@ -6173,7 +6159,6 @@ enqueue_task_fair(struct rq *rq, struct task_struct *p, int flags)
 		flags = ENQUEUE_WAKEUP;
 	}
 
-	trace_android_rvh_enqueue_task_fair(rq, p, flags);
 	for_each_sched_entity(se) {
 		cfs_rq = cfs_rq_of(se);
 
@@ -6264,7 +6249,6 @@ static void dequeue_task_fair(struct rq *rq, struct task_struct *p, int flags)
 		flags |= DEQUEUE_SLEEP;
 	}
 
-	trace_android_rvh_dequeue_task_fair(rq, p, flags);
 	for_each_sched_entity(se) {
 		cfs_rq = cfs_rq_of(se);
 
@@ -7743,13 +7727,8 @@ static void check_preempt_wakeup(struct rq *rq, struct task_struct *p, int wake_
 	int scale = cfs_rq->nr_running >= sched_nr_latency;
 	int next_buddy_marked = 0;
 	int cse_is_idle, pse_is_idle;
-	bool ignore = false;
-	bool preempt = false;
 
 	if (unlikely(se == pse))
-		return;
-	trace_android_rvh_check_preempt_wakeup_ignore(curr, &ignore);
-	if (ignore)
 		return;
 
 	/*
@@ -7807,12 +7786,6 @@ static void check_preempt_wakeup(struct rq *rq, struct task_struct *p, int wake_
 		return;
 
 	update_curr(cfs_rq_of(se));
-	trace_android_rvh_check_preempt_wakeup(rq, p, &preempt, &ignore,
-			wake_flags, se, pse, next_buddy_marked, sysctl_sched_wakeup_granularity);
-	if (preempt)
-		goto preempt;
-	if (ignore)
-		return;
 
 	if (wakeup_preempt_entity(se, pse) == 1) {
 		/*
@@ -7884,7 +7857,6 @@ pick_next_task_fair(struct rq *rq, struct task_struct *prev, struct rq_flags *rf
 	struct sched_entity *se = NULL;
 	struct task_struct *p = NULL;
 	int new_tasks;
-	bool repick = false;
 
 again:
 	if (!sched_fair_runnable(rq))
@@ -7938,7 +7910,6 @@ again:
 	} while (cfs_rq);
 
 	p = task_of(se);
-	trace_android_rvh_replace_next_task_fair(rq, &p, &se, &repick, false, prev);
 	/*
 	 * Since we haven't yet done put_prev_entity and if the selected task
 	 * is a different task than we started out with, try and touch the
@@ -7970,10 +7941,6 @@ simple:
 #endif
 	if (prev)
 		put_prev_task(rq, prev);
-
-	trace_android_rvh_replace_next_task_fair(rq, &p, &se, &repick, true, prev);
-	if (repick)
-		goto done;
 
 	do {
 		se = pick_next_entity(cfs_rq, NULL);
